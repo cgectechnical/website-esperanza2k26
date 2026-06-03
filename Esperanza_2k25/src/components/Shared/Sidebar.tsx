@@ -4,12 +4,7 @@ import Link from "next/link";
 import Hamburger from "./Hamburger";
 
 import { useState } from "react";
-import { Sedgwick_Ave_Display,Katibeh } from "next/font/google";
-
-const sedgwick = Sedgwick_Ave_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-})
+import { sedgwick } from "@/utils/fonts";
 const Sidebar = ({user}:any) => {
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

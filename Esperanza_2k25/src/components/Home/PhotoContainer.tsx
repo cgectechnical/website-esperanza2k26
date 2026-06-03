@@ -6,18 +6,9 @@ import star3 from "@/assets/images/Star 3.png";
 import group12 from "@/assets/images/Group12.png";
 //import { section } from "framer-motion/client";
 import Image from "next/image";
-import { Sedgwick_Ave_Display } from "next/font/google";
-import {Katibeh} from "next/font/google";
+import { sedgwick } from "@/utils/fonts";
 import React, { useEffect, useRef } from 'react';
-
-const sedgwick = Sedgwick_Ave_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-})
-const katibeh = Katibeh({
-  subsets: ["latin"],
-  weight: ["400"],
-})
+import AnimatedLine from "./AnimatedLine";
 
 
 const PhotoContainer = () => {
@@ -58,14 +49,14 @@ const PhotoContainer = () => {
   return (
     <section ref={sectionRef} className="py-16 px-8 max-w-6xl mx-auto">
 
-<div className="relative inline-block mb-12 mx-auto w-full">
-        <h1 className={`${katibeh.className} text-5xl md:text-8xl font-bold text-gray-200 text-center relative z-10 katibeh-regular`}>
+<div className="relative inline-block mb-4 mx-auto w-full">
+        <h1 className={`${sedgwick.className} text-5xl md:text-8xl font-bold text-gray-200 text-center relative z-10`}>
           ESPERANZA
         </h1>
 
         <svg
           ref={shadowRef}
-          className={`${katibeh.className} absolute top-7 left-4 w-full h-full katibeh-regular`}
+          className={`${sedgwick.className} absolute top-7 left-4 w-full h-full`}
           style={{
             strokeDasharray: 1000,
             strokeDashoffset: 1000,
@@ -84,6 +75,7 @@ const PhotoContainer = () => {
           </text>
         </svg>
       </div>
+      <AnimatedLine />
 
 
       <div className="flex flex-col md:flex-row gap-12 items-center">
@@ -109,25 +101,53 @@ const PhotoContainer = () => {
 </div>
 
 <div className="flex-1 min-w-[300px] relative top-20 left-[0] md:left-[40]">
-  <div className={`${sedgwick.className} text-lg text-gray-200 leading-relaxed underdog`}>
-  <p>Welcome to Esperanza 2025, the grand annual fest of COOCHBEHAR GOVERNMENT ENGINEERING COLLEG ! This year, we bring you an electrifying fusion of technology and culture, where innovation meets creativity in an unforgettable celebration.
-From April 22nd to April 26th, our campus will be transformed into a hub of intellect, artistry, and excitement. The first three days (April 22nd - 24th) will be dedicated to a mesmerizing technical extravaganza, featuring thrilling hackathons, coding challenges, robotics competitions, and much more. It’s your chance to push boundaries, showcase your skills, and compete with the brightest minds.
-</p>
-Then, get ready to unwind and immerse yourself in the vibrant Cultural Phase on April 25th and 26th! Experience mesmerizing music, dance, drama, fashion shows, and a celebration of diverse cultures.
 
-Join us for Esperanza 2025 – where technology sparks innovation, and culture brings us together! Stay tuned for event details, registrations, and exciting surprises.
+<div className={`${sedgwick.className} text-base md:text-lg text-gray-200 leading-relaxed underdog space-y-4`}>
 
-<p>Let’s make memories. Let’s make history.</p>
-  </div>
-  <Link href="brochure/brochure.pdf" passHref legacyBehavior>
-  <a target="_blank" className="inline-block">
+  <p>
+    Welcome to{" "}
+    <span className="bg-yellow-400/20 text-yellow-300 px-1">
+      Esperanza’26
+    </span>
+    , the Tech Cum Cultural Fest of CGEC, from{" "}
+    <span className="bg-pink-400/20 text-pink-300 px-1">
+      16th–20th June 2026
+    </span>.
+  </p>
+
+  <p>
+    Three days of exciting{" "}
+    <span className="bg-purple-400/20 text-purple-300 px-1">
+      technical events
+    </span>
+    , followed by two days of vibrant{" "}
+    <span className="bg-red-400/20 text-red-300 px-1">
+      cultural celebrations
+    </span>
+    .
+  </p>
+
+  <p>
+    Esperanza’26 says : —{" "}
+    <span className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-amber-400/20 via-orange-400/20 to-yellow-300/20 border border-amber-300/20 text-amber-200 tracking-[0.25em] uppercase text-sm backdrop-blur-md shadow-lg">
+      "Where Technology Meets Culture & Innovation Meets Tradition"
+    </span>
+  </p>
+
+  <p className="text-xl text-white">
+    Create Memories. Create History.
+  </p>
+
+</div>
+
+
+  <Link href="brochure/brochure.pdf" target="_blank" className="inline-block">
   <Image
   src={group12}
   alt=""
   width={270}
   className='pt-[50] w-[75%] md:w-full hover:scale-108 transition-transform duration-300 cursor-pointer'
   />
-  </a>
   </Link>
 </div>
 </div>

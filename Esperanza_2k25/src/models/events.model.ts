@@ -35,6 +35,9 @@ const eventSchema = new Schema({
   ruleBookLink: {
     type: String,
   },
+  poster: {
+    type: String,
+  },
   leads: [
     {
       name: {
@@ -58,4 +61,4 @@ const eventSchema = new Schema({
 });
 
 export const Events =
-  mongoose.models.Events || mongoose.model("Events", eventSchema);
+  mongoose.models?.Events || mongoose.model("Events", eventSchema);

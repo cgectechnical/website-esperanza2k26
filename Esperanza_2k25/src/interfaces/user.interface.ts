@@ -7,6 +7,7 @@ export interface User {
     department: "CSE" | "ECE" | "EE" | "ME" | "CE";
     rollNumber: string;
     bio : string;
+    profilePhoto?: string;
     credentials: Credentials;
     isVerified: boolean;
     registeredEvents: any[];

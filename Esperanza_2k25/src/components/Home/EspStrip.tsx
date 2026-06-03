@@ -9,7 +9,7 @@ const underdog = Underdog({
   weight: ["400"],
 })
 export default function MarqueeText() {
-  const text = "#ESPERANZA '25 "; 
+  const text = "#ESPERANZA '26 "; 
   const letters = text.split(""); 
   const [activeLetter, setActiveLetter] = useState(0);
 
@@ -49,7 +49,7 @@ export default function MarqueeText() {
        
       </div>
 
-      <style jsx>{`
+      <style>{`
         .marquee {
           display: flex;
           white-space: nowrap;

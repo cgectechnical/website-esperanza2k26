@@ -4,7 +4,7 @@ import {type Metadata } from "next";
 import { ReactNode } from "react";
 
 export const metadata : Metadata = {
-  title: "Esperanza2k25 | Team",
+  title: "Esperanza2k26 | Team",
   description: metaDescription,
 }
 

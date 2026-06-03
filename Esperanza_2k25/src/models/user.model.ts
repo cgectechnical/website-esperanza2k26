@@ -21,6 +21,10 @@ const userSchema = new Schema({
     type: String,
     default: "",
   },
+  profilePhoto: {
+    type: String,
+    default: "",
+  },
   credentials: {
     email: {
       type: String,
@@ -35,6 +39,17 @@ const userSchema = new Schema({
       type: String,
       unique: true,
     },
+  },
+  resetPasswordOTP: {
+    type: String,
+  },
+  resetPasswordOTPExpires: {
+    type: Date,
+  },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
   },
   isVerified: {
     type: Boolean,

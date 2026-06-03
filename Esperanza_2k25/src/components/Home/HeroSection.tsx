@@ -1,4 +1,4 @@
-//"use client";
+"use client";
 import React from "react";
 
 export default function HeroSection() {
@@ -7,11 +7,12 @@ export default function HeroSection() {
       
       <div className="absolute inset-0 overflow-hidden">
         <video
-          className="absolute top-1/2 left-1/2 min-w-full min-h-full w-full h-full object-cover transform -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 min-w-[95%] min-h-[95%] w-full h-full object-cover transform -translate-x-1/2 -translate-y-1/2"
           autoPlay
           loop
           muted
           playsInline
+          preload="metadata"
         >
           <source src="/videos/bgvido.mp4" type="video/mp4" />
           Your browser does not support the video tag.

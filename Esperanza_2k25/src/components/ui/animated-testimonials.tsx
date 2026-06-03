@@ -19,6 +19,10 @@ export const AnimatedTestimonials = ({
   const [active, setActive] = useState(0);
   const [rotationCache, setRotationCache] = useState<number[]>([]);
 
+  if (!testimonials || testimonials.length === 0) {
+    return null;
+  }
+
   const handleNext = () => {
     setActive((prev) => (prev + 1) % testimonials.length);
   };
@@ -30,11 +34,11 @@ export const AnimatedTestimonials = ({
   const isActive = (index: number) => index === active;
 
   useEffect(() => {
-    if (autoplay) {
+    if (autoplay && testimonials.length > 0) {
       const interval = setInterval(handleNext, 5000);
       return () => clearInterval(interval);
     }
-  }, [autoplay]);
+  }, [autoplay, testimonials.length]);
 
   // Cache random rotateY values after mount
   useEffect(() => {
@@ -80,14 +84,22 @@ export const AnimatedTestimonials = ({
                   }}
                   className="absolute inset-0 origin-bottom"
                 >
-                  <Image
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    width={500}
-                    height={500}
-                    draggable={false}
-                    className="h-full w-full rounded-3xl object-cover object-center"
-                  />
+                  <div className="h-full w-full rounded-3xl overflow-hidden">
+                    {testimonial.avatar ? (
+                      <Image
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                        width={500}
+                        height={500}
+                        draggable={false}
+                        className="h-full w-full object-cover object-center"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-gray-800 flex items-center justify-center text-gray-500">
+                        No image
+                      </div>
+                    )}
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -108,7 +120,7 @@ export const AnimatedTestimonials = ({
               {testimonials[active].year} - {testimonials[active].department}
             </p>
             <motion.p className="mt-4 text-lg text-gray-500 dark:text-neutral-300 capitalize">
-              {testimonials[active].lead?.split(" ").map((word, index) => (
+              {testimonials[active].lead?.split(" ").map((word: string, index: number) => (
                 <motion.span
                   key={index}
                   initial={{
@@ -134,7 +146,7 @@ export const AnimatedTestimonials = ({
             </motion.p>
             <motion.div>
               <div className="flex justify-start gap-5 my-3 relative z-20">
-                {testimonials[active].socials?.map((s, i) => {
+                {testimonials[active].socials?.map((s: any, i: number) => {
                   let icon = null;
                   if (s.handler === "Facebook") {
                     icon = <FaFacebook size={35} color="white" />;

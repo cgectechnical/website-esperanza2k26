@@ -3,14 +3,9 @@ import { connectDB } from "@/utils/db/connect";
 import { compare } from "bcryptjs";
 import NextAuth, { CredentialsSignin } from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
-import GithubProvider from "next-auth/providers/github"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    GithubProvider({
-      clientId : process.env.GITHUB_CLIENT_ID,
-      clientSecret : process.env.GITHUB_CLIENT_SECRET
-    }),
     CredentialProvider({
       name: "Credentials",
       credentials: {
@@ -22,9 +17,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const password = credentials.password as string;
 
         if (!email || !password) {
-          throw new CredentialsSignin({
-            cause: "Missing credentials",
-          });
+          throw new CredentialsSignin("Missing credentials");
         }
         await connectDB();
 
@@ -33,24 +26,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         );
 
         if (!user) {
-          throw new CredentialsSignin({
-            cause: "User not found",
-          });
+          throw new CredentialsSignin("User not found");
         }
         if (!user.credentials?.password) {
-          throw new CredentialsSignin({
-            cause: "Password not found",
-          });
+          throw new CredentialsSignin("Password not found");
         }
         const isMatch = await compare(password, user.credentials.password);
         if (!isMatch) {
-          throw new CredentialsSignin({
-            cause: "Wrong Password",
-          });
+          throw new CredentialsSignin("Wrong Password");
         } else {
           return {
+            id: user._id.toString(),
             name: user.name,
             email: user.credentials.email,
+            role: user.role,
           };
         }
       },
@@ -58,5 +47,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   pages: {
     signIn: "/login",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role as "user" | "admin";
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as "user" | "admin";
+      }
+      return session;
+    },
   },
 });

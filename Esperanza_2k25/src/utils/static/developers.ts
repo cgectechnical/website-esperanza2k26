@@ -6,15 +6,53 @@ import rupam from "@/assets/developers/rupam.jpg";
 import nabadipta from "@/assets/developers/nabadipta.jpg";
 import ayan from "@/assets/crew/ayan.jpg";
 import arpan from "@/assets/developers/arpan.jpg";
-
+import sabir from "@/assets/developers/sabir.jpg";
+import tanmoy from "@/assets/developers/tanmoy.jpg";
+import javed from "@/assets/crew/javed.jpg";
 
 export const developers = [
+    {
+    name: "Sabir Ali Mondal",
+    avatar: sabir,
+    profile: "",
+    role : "full-stack",
+    year : "3rd",
+    department : "CSE",
+    socials : [
+      {
+        handler : "LinkedIn",
+        link : "https://www.linkedin.com/in/sabir-ali-mondal/"
+      },
+      {
+        handler : "Github",
+        link : "https://github.com/Sabir-Ali-Mondal"
+      }
+    ]
+  },
+  {
+    name: "Tanmoy Pal",
+    avatar: tanmoy,
+    profile: "",
+    role : "full-stack",
+    year : "3rd",
+    department : "CSE",
+    socials : [
+      {
+        handler : "LinkedIn",
+        link : "https://www.linkedin.com/in/tanmoy-pal-755611294/"
+      },
+      {
+        handler : "Github",
+        link : "https://github.com/Tanmoy052/"
+      }
+    ]
+  },
   {
     name: "Sayan Sutradhar",
     avatar: sayan,
     profile: "",
     role : "full-stack",
-    year : "3rd",
+    year : "4th",
     department : "CSE",
     socials : [
       {
@@ -32,7 +70,7 @@ export const developers = [
     avatar: ayan,
     profile: "",
     role : "full-stack",
-    year : "3rd",
+    year : "4th",
     department : "CSE",
     socials : [
       {
@@ -50,7 +88,7 @@ export const developers = [
     avatar: arpan,
     profile: "",
     role : "full-stack",
-    year : "3rd",
+    year : "4th",
     department : "ECE",
     socials : [
       {
@@ -68,7 +106,7 @@ export const developers = [
     avatar: rupam,
     profile: "",
     role : "ui-ux",
-    year : "3rd",
+    year : "4th",
     department : "ECE",
     socials : [
       {
@@ -86,7 +124,7 @@ export const developers = [
     avatar: nabadipta,
     profile: "",
     role : "ui-ux",
-    year : "3rd",
+    year : "4th",
     department : "ECE",
     socials : [
       {
@@ -104,7 +142,7 @@ export const developers = [
     avatar: sumouli,
     profile: "",
     role : "web-content-writer",
-    year : "1st",
+    year : "2nd",
     department : "ECE",
     socials : [
       {
@@ -122,7 +160,7 @@ export const developers = [
     avatar: ayushi,
     profile: "",
     role : "web-content-writer",
-    year : "2nd",
+    year : "3rd",
     department : "ECE",
     socials : [
       {
@@ -140,12 +178,30 @@ export const developers = [
     avatar: sagnik,
     profile: "",
     role : "videography",
-    year : "2nd",
+    year : "3rd",
     department : "ME",
     socials : [
       {
         handler : "Instagram",
         link : "https://www.instagram.com/sagu7718?igsh=MTZlcHVudjIzeHZqMw=="
+      }
+    ]
+  },
+  {
+    name: "Seikh Mahammad Javed",
+    avatar: javed,
+    profile: "",
+    role: "website-data-management",
+    year: "3rd",
+    department: "CSE",
+    socials: [
+      {
+        handler: "LinkedIn",
+        link: "https://www.linkedin.com/in/seikh-mahammad-javed-ba29b4215/"
+      },
+      {
+        handler: "Github",
+        link: "https://github.com/itsmejaved"
       }
     ]
   },

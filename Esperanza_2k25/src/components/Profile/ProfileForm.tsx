@@ -2,40 +2,37 @@
 
 import { Button } from "@/components/ui/button";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Edit, Save, X, Check } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Sedgwick_Ave_Display} from "next/font/google";
-const sedgwick = Sedgwick_Ave_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-})
+import { sedgwick } from "@/utils/fonts";
+import { updateProfile } from "@/actions/profile.action";
+import customSwal from "@/utils/swal";
 
 const formSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  rollNumber: z.string().min(8, "Roll number must be at least 8 characters"),
-  contactNumber: z
-    .string()
-    .min(8, "Contact number must be at least 8 characters"),
-  year: z.string().min(1, "Please select a year"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
   department: z.string().min(1, "Please select a department"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  phoneNumber: z
+    .string()
+    .min(8, "Phone number must be at least 8 characters"),
+  rollNumber: z.string().min(8, "Roll number must be at least 8 characters"),
+  year: z.string().min(1, "Please select a year"),
+  email: z.string().optional(),
 });
 
 const ProfileForm = ({
   user,
+  onUpdate,
 }: {
   user?: {
     name: string;
@@ -45,39 +42,47 @@ const ProfileForm = ({
     department: string;
     year: string;
   };
+  onUpdate?: () => void;
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: user?.name?.split(" ")[0] || "",
-      lastName: user?.name?.split(" ")[1] || "",
-      email: user?.email || "",
-      rollNumber: user?.rollNumber || "",
-      contactNumber: user?.phoneNumber || "",
-      year: user?.year || "",
+      name: user?.name || "",
       department: user?.department || "",
-      password: "",
+      phoneNumber: user?.phoneNumber || "",
+      rollNumber: user?.rollNumber || "",
+      year: user?.year || "",
+      email: user?.email || "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setSubmitSuccess(true);
-      // Reset form after successful submission
-      form.reset();
+      const result = await updateProfile(values);
+      
+      if (result.success) {
+        customSwal.fire("Success!", result.message, "success");
+        setIsEditing(false);
+        if (onUpdate) onUpdate();
+      } else {
+        customSwal.fire("Error!", result.message, "error");
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
+      customSwal.fire("Error!", "Failed to update profile", "error");
     } finally {
       setIsSubmitting(false);
     }
   }
+
+  const handleCancel = () => {
+    form.reset();
+    setIsEditing(false);
+  };
 
   return (
     <Form {...form}>
@@ -85,48 +90,67 @@ const ProfileForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-4 sm:space-y-6"
       >
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={`${sedgwick.className} text-sm sm:text-base`}>
-                  First Name
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter first name"
-                    className="bg-gray-800/50 text-sm sm:text-base"
-                    {...field}
-                    readOnly
-                  />
-                </FormControl>
-                <FormMessage className="text-xs sm:text-sm" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={`${sedgwick.className} text-sm sm:text-base`}>
-                  Last Name
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter last name"
-                    className="bg-gray-800/50 text-sm sm:text-base"
-                    {...field}
-                    readOnly
-                  />
-                </FormControl>
-                <FormMessage className="text-xs sm:text-sm" />
-              </FormItem>
-            )}
-          />
+        <div className="flex justify-end mb-4">
+          {!isEditing ? (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="relative inline-flex items-center justify-center px-6 py-2 font-bold text-white transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] rounded-lg"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </button>
+          ) : (
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="relative inline-flex items-center justify-center px-6 py-2 font-bold text-white transition-all duration-200 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 shadow-[0_4px_0_0_#374151] hover:shadow-[0_2px_0_0_#374151] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] rounded-lg"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="relative inline-flex items-center justify-center px-6 py-2 font-bold text-white transition-all duration-200 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-[0_4px_0_0_#166534] hover:shadow-[0_2px_0_0_#166534] hover:translate-y-[2px] active:shadow-none active:translate-y-[4px] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
+
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className={`${sedgwick.className} text-sm sm:text-base`}>
+                Full Name
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter full name"
+                  className="bg-gray-800/50 text-sm sm:text-base"
+                  {...field}
+                  disabled={!isEditing}
+                />
+              </FormControl>
+              <FormMessage className="text-xs sm:text-sm" />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
@@ -136,13 +160,11 @@ const ProfileForm = ({
               <FormLabel className={`${sedgwick.className} text-sm sm:text-base`}>Email</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter email"
-                  className="bg-gray-800/50 text-sm sm:text-base"
                   {...field}
-                  readOnly
+                  className="bg-gray-800/50 text-sm sm:text-base text-gray-400"
+                  disabled
                 />
               </FormControl>
-              <FormMessage className="text-xs sm:text-sm" />
             </FormItem>
           )}
         />
@@ -160,7 +182,7 @@ const ProfileForm = ({
                   placeholder="Enter roll number"
                   className="bg-gray-800/50 text-sm sm:text-base"
                   {...field}
-                  readOnly
+                  disabled={!isEditing}
                 />
               </FormControl>
               <FormMessage className="text-xs sm:text-sm" />
@@ -170,18 +192,18 @@ const ProfileForm = ({
 
         <FormField
           control={form.control}
-          name="contactNumber"
+          name="phoneNumber"
           render={({ field }) => (
             <FormItem>
               <FormLabel className={`${sedgwick.className} text-sm sm:text-base`}>
-                Contact Number
+                Phone Number
               </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter contact number"
+                  placeholder="Enter phone number"
                   className="bg-gray-800/50 text-sm sm:text-base"
                   {...field}
-                  readOnly
+                  disabled={!isEditing}
                 />
               </FormControl>
               <FormMessage className="text-xs sm:text-sm" />
@@ -198,10 +220,10 @@ const ProfileForm = ({
                 <FormLabel className={`${sedgwick.className} text-sm sm:text-base`}>Year</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Enter contact number"
+                    placeholder="Enter year"
                     className="bg-gray-800/50 text-sm sm:text-base"
                     {...field}
-                    readOnly
+                    disabled={!isEditing}
                   />
                 </FormControl>
                 <FormMessage className="text-xs sm:text-sm" />
@@ -219,10 +241,10 @@ const ProfileForm = ({
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Enter contact number"
+                    placeholder="Enter department"
                     className="bg-gray-800/50 text-sm sm:text-base"
                     {...field}
-                    readOnly
+                    disabled={!isEditing}
                   />
                 </FormControl>
                 <FormMessage className="text-xs sm:text-sm" />
@@ -230,62 +252,6 @@ const ProfileForm = ({
             )}
           />
         </div>
-
-        {/* <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className={`${sedgwick.className} text-sm sm:text-base`}>Password</FormLabel>
-              <div className="relative">
-                <FormControl>
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter password"
-                    className="bg-gray-800/50 text-sm sm:text-base pr-10"
-                    {...field}
-                  />
-                </FormControl>
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-              <FormMessage className="text-xs sm:text-sm" />
-            </FormItem>
-          )}
-        /> */}
-
-        {submitSuccess && (
-          <div className="bg-green-500/20 text-green-400 p-3 rounded-md text-sm">
-            Profile updated successfully!
-          </div>
-        )}
-
-        {/* <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
-          <Button
-            variant="outline"
-            type="button"
-            className={`${sedgwick.className} hover:bg-red-500/20 hover:text-red-500 order-2 sm:order-1`}
-            onClick={() => form.reset()}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            className={`${sedgwick.className} bg-red-500 hover:bg-red-600 order-1 sm:order-2`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Saving..." : "Save Changes"}
-          </Button>
-        </div> */}
       </form>
     </Form>
   );

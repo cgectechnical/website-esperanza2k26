@@ -1,194 +1,201 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Image from "next/image";
-import { motion, useInView } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import ploygon54 from "@/assets/images/Polygon54.png";
 import ploygon52 from "@/assets/images/Polygon52.png";
-
-import img2 from "@/assets/Gallery/cultural/band3.jpg";
-import img1 from "@/assets/Gallery/tech/view.jpg";
-import img3 from "@/assets/Gallery/cultural/singer1.jpg";
-import img4 from "@/assets/Gallery/cultural/robo1.png";
-import img11 from "@/assets/Gallery/cultural/band1.jpg";
-import img6 from "@/assets/Gallery/cultural/drums.jpg";
-import img7 from "@/assets/Gallery/tech/plane1.jpg";
-import img8 from "@/assets/Gallery/tech/robo6.jpg";
-import img10 from "@/assets/Gallery/tech/teacher.jpg";
-import img9 from "@/assets/Gallery/cultural/band2.jpg";
-import img5 from "@/assets/Gallery/tech/hackathon.jpg";
-import img12 from "@/assets/Gallery/tech/sc.jpg";
-import img13 from "@/assets/Gallery/tech/tower.jpg";
-
-
-const galleryImages = [
-  { id: 1, img: img1, alt: "", role: "r" },
-  { id: 2, img: img2, alt: "", role: "" },
-  { id: 3, img: img3, alt: "", role: "" },
-  { id: 4, img: img4, alt: "", role: "" },
-  { id: 5, img: img5, alt: "", role: "" },
-  { id: 6, img: img6, alt: "", role: "" },
-  { id: 7, img: img7, alt: "", role: "" },
-  { id: 8, img: img8, alt: "", role: "" },
-  { id: 9, img: img9, alt: "", role: "" },
-  { id: 10, img: img10, alt: "", role: "" },
-  { id: 11, img: img11, alt: "", role: "" },
-  { id: 12, img: img12, alt: "", role: "" },
-  { id: 13, img: img13, alt: "", role: "" }
-];
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 40, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { 
-      duration: 0.6, 
-      ease: [0.16, 1, 0.3, 1]
-    }
-  }
-};
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2
-    }
-  }
-};
-
-const hoverVariants = {
-  hover: {
-    scale: 1.03,
-    boxShadow: "0 20px 25px -10px rgba(0, 0, 0, 0.15)",
-    transition: { duration: 0.6 }
-  }
-};
+import memoriesCollage from "@/assets/images/memories.jpg";
+import { useRandomPositions } from "@/hooks/useRandomPositions";
+import { sedgwick } from "@/utils/fonts";
+import AnimatedLine from "./AnimatedLine";
 
 export default function Gallery() {
+  const router = useRouter();
+  const shadowRef = useRef<SVGSVGElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, {
-    amount: 0.2,
-    once: false,
-    margin: "0px 0px -100px 0px"
-  });
+  const positions = useRandomPositions(12);
+
+  useEffect(() => {
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && shadowRef.current) {
+          shadowRef.current.style.transition = "none";
+          shadowRef.current.style.strokeDashoffset = "1000";
+          void shadowRef.current.getBoundingClientRect();
+          shadowRef.current.style.transition = "stroke-dashoffset 4s ease-in-out";
+          shadowRef.current.style.strokeDashoffset = "0";
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(handleIntersection, {
+      threshold: 0.2
+    });
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
 
   return (
     <section
       ref={sectionRef}
-      className="w-full py-16 md:py-60 mt-20 sm:mt-15 md:mt-40 lg:mt-125 px-6 sm:px-10 lg:px-12" 
+      className="py-16 px-8 relative overflow-hidden"
     >
-      <div className="relative inline-block mb-8 mx-auto w-full">
-        <motion.h1 
-          className="text-7xl md:text-8xl font-bold text-gray-200 text-center relative z-10 katibeh-regular"
-          initial={{ opacity: 0, y: -20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-        >
-          Memories
-        </motion.h1>
-
-        <motion.svg
-          className="absolute top-7 left-4 w-full h-full katibeh-regular"
-          initial={{ pathLength: 0 }}
-          animate={isInView ? { pathLength: 1 } : {}}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
-          viewBox="0 0 500 100"
-        >
-          
-          <text
-            x="50%"
-            y="80%"
-            textAnchor="middle"
-            className="text-8xl md:text-8xl"
-            fill="transparent"
-            stroke="#999999"
-            strokeWidth="2"
-            strokeDasharray="1000"
-            strokeDashoffset={isInView ? 0 : 1000}
-            style={{
-              transition: "stroke-dashoffset 1.5s ease-in-out"
-            }}
+      {/* Header - same style as Cultural/Tech */}
+      <div className="flex justify-center w-full">
+        <div className="relative mb-4 w-full max-w-6xl">
+          <h1
+            className={`${sedgwick.className} text-5xl md:text-8xl font-bold text-gray-200 text-center relative z-10`}
           >
             Memories
-          </text>
-        </motion.svg>
+          </h1>
+
+          <svg
+            ref={shadowRef}
+            className={`${sedgwick.className} absolute top-7 left-4 w-full h-full`}
+            style={{
+              strokeDasharray: 1000,
+              strokeDashoffset: 1000,
+            }}
+          >
+            <text
+              x="50%"
+              y="80%"
+              textAnchor="middle"
+              className="text-5xl md:text-8xl"
+              fill="transparent"
+              stroke="#999999"
+              strokeWidth="1"
+            >
+              Memories
+            </text>
+          </svg>
+        </div>
       </div>
+      <AnimatedLine />
 
       <div className="absolute z-[-1] md:right-[-2]">
-        <Image 
-        src={ploygon54} 
-        alt=''
-        width={700}
+        <Image
+          src={ploygon54}
+          alt=""
+          width={700}
         />
       </div>
 
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
-        className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 mb-8 mt-40" 
-      >
-        {galleryImages.map((item, idx) => (
-          <motion.div
-            key={item.id}
-            variants={cardVariants}
-            whileHover={hoverVariants.hover}
-            whileTap={{ scale: 0.98 }}
-            className={`relative rounded-xl overflow-hidden shadow-lg ${
-              idx % 5 === 0 ? "col-span-3 row-span-3 aspect-[2/1]" : "aspect-square"
-            }`}
-          >
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0"
-            >
-              <Image
-                src={item.img}
-                alt={item.alt}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                placeholder="blur"
-              />
-            </motion.div>
+      <div className="max-w-6xl mx-auto mt-12 relative">
+        {/* Decorative animated border */}
+        <motion.div
+          className="absolute -inset-2 rounded-3xl border border-white/10"
+          animate={{
+            boxShadow: [
+              "0 0 20px rgba(255, 100, 100, 0.2)",
+              "0 0 40px rgba(255, 100, 100, 0.3)",
+              "0 0 20px rgba(255, 100, 100, 0.2)"
+            ]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
 
-            {/* Overlay */}
+        {/* Main collage image with beautiful frame */}
+        <div className="relative">
+          {/* Gradient glow behind image */}
+          <motion.div
+            className="absolute -inset-4 bg-gradient-to-r from-red-500/20 via-purple-500/20 to-red-500/20 rounded-3xl blur-2xl"
+            animate={{
+              opacity: [0.5, 0.8, 0.5],
+              scale: [1, 1.02, 1]
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+          />
+
+          {/* Image container with animated frame */}
+          <motion.div
+            className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20 cursor-pointer"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            onClick={() => router.push("/gallery")}
+          >
+            {/* Animated gradient border using framer-motion */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-5"
-              initial={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
-              transition={{ duration: 0.4 }}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileHover={{ 
-                  opacity: 1, 
-                  y: 0,
-                  transition: { duration: 0.4 }
-                }}
-              >
-                <h3 className="text-white font-medium text-lg drop-shadow-md">{item.alt}</h3>
-                <p className="text-white/90 text-sm drop-shadow-md">{item.role}</p>
-              </motion.div>
-            </motion.div>
+              className="absolute inset-0 p-[3px] rounded-3xl"
+              animate={{
+                background: [
+                  "linear-gradient(45deg, #ef4444, #991b1b, #000000, #991b1b, #ef4444)",
+                  "linear-gradient(90deg, #991b1b, #000000, #991b1b, #ef4444, #ef4444)",
+                  "linear-gradient(135deg, #000000, #991b1b, #ef4444, #ef4444, #991b1b)",
+                ],
+                backgroundSize: ["300% 300%", "300% 300%", "300% 300%"],
+                backgroundPosition: ["0% 50%", "50% 50%", "100% 50%"],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "linear",
+              }}
+            />
+
+            {/* Inner container */}
+            <div className="relative rounded-[22px] p-1 m-[2px]">
+              <Image
+                src={memoriesCollage}
+                alt="Esperanza Memories Collage"
+                className="w-full h-auto rounded-[20px] object-cover"
+                priority
+              />
+
+              {/* Animated particles overlay */}
+              <div className="absolute inset-0 pointer-events-none">
+                {positions.map((pos, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 bg-white/30 rounded-full"
+                    initial={{
+                      x: `${pos.x}%`,
+                      y: `${pos.y}%`,
+                      opacity: 0
+                    }}
+                    animate={{
+                      opacity: [0, 0.6, 0],
+                      scale: [1, 1.5, 1],
+                      transition: {
+                        duration: 3 + (i * 0.2),
+                        delay: i * 0.3,
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
           </motion.div>
-        ))}
-      </motion.div>
-      <div className="absolute z-[-1] -left-2 -translate-y-160
-">
-        <Image 
-        src={ploygon52} 
-        alt=''
-        width={900}
+        </div>
+      </div>
+
+      <div className="absolute z-[-1] -left-2 -translate-y-160">
+        <Image
+          src={ploygon52}
+          alt=""
+          width={900}
         />
       </div>
     </section>
   );
 }
-
-

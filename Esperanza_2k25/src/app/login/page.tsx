@@ -1,29 +1,20 @@
 import rocket from "@/assets/images/rocket.png";
 import LoginSignUpForm from "@/components/Login/LoginSignUpForm";
 import Container from "@/components/Shared/Container";
-import { Karla,Sedgwick_Ave_Display } from "next/font/google";
+import { sedgwick, roboto } from "@/utils/fonts";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-const sedgwick = Sedgwick_Ave_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-})
-const karla = Karla({
-  subsets: ["latin"],
-  weight: "700",
-});
-const Login = async() => {
-
-  const session = await auth()
-  if(session?.user?.email) redirect("/")
+const Login = async () => {
+  const session = await auth();
+  if (session?.user?.email) redirect("/");
 
   return (
-    <div className="min-h-[90vh] bg-black text-white relative">
-      <Container>
+    <div className="min-h-[90vh] bg-black text-white relative mt-[80px]">
+      <div className="container mx-auto px-4 pt-0 pb-2 relative z-10">
         <div className=" flex items-center">
           <Link href="/">
             <Button
@@ -35,7 +26,7 @@ const Login = async() => {
             </Button>
           </Link>
         </div>
-      </Container>
+      </div>
       <Image
         src={rocket}
         alt=""

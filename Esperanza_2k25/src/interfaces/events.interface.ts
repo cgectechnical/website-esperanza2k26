@@ -9,6 +9,7 @@ export interface Event {
   venue: string;
   eventCategory: "technical" | "cultural";
   ruleBookLink: string;
+  poster: string;
   leads: {
     name: string;
     year: "1st" | "2nd" | "3rd" | "4th";

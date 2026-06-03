@@ -1,13 +1,9 @@
 "use client";
 import { contactMessage } from "@/actions/contact.action";
 import { useState } from "react";
-import Swal from "sweetalert2";
+import customSwal from "@/utils/swal";
 
-import { Katibeh,Sedgwick_Ave_Display } from "next/font/google";
-const sedgwick = Sedgwick_Ave_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-})
+import { sedgwick } from "@/utils/fonts";
 const ContactUsForm = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -18,7 +14,7 @@ const ContactUsForm = () => {
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.email || !formData.message) {
-      Swal.fire({
+      customSwal.fire({
         icon: "warning",
         title: "Oops...",
         text: "Please fill all the fields",
@@ -31,7 +27,7 @@ const ContactUsForm = () => {
       formData.email,
       formData.message
     );
-    Swal.fire({
+    customSwal.fire({
       icon: response.success ? "success" : "error",
       title: response.success ? "Success" : "Error",
       text: response.message,

@@ -1,74 +1,87 @@
-"use client"
+"use client";
+import { useEffect, useState } from "react";
 import RadialBgRed from "@/assets/background/RadialBgRed.png";
 import AboutUs from "@/assets/images/sponsors.png";
 
-import Card,{CardContainer, cards,} from "@/components/sponsors/card";
+import Card, { CardContainer } from "@/components/sponsors/card";
 import Hexagon from "@/assets/images/Hexagon.png";
 
-
 import Container from "@/components/Shared/Container";
+import { fetchAllSponsors } from "@/actions/fetch.action";
+import Image from "next/image";
 
-
-import Image from "next/image"
-const Sponsers = () => {
-  return (
-    <div className="mt-[125px] min-h-[90vh] relative overflow-hidden">
-    <Image
-      src={RadialBgRed}
-      alt="background"
-      className="opacity-20 sm:opacity-40 md:opacity-55 lg:opacity-65 absolute left-1/2 transform -translate-x-1/2 z-0"
-    />
-    <Image src={Hexagon} alt="hexagon decoration" className="absolute z-0" />
-
-    {/* About Us Section */}
-    <div className="flex flex-col items-center py-10 relative z-20">
-      <Container>
-        <div className="flex justify-center relative z-30 w-full max-w-[700px] mx-auto">
-          <Image
-            src={AboutUs}
-            alt="about us"
-            className="object-contain"
-            priority
-          />
-        </div>
-      </Container>
-    </div>
-    {/* Cards Section */}
-    
-      <Container>
-        <CardContainer>
-          {cards.map((card, index) => (
-            <Card key={index} {...card} />
-          ))}
-        </CardContainer>
-
-      </Container>      
-      {/* <h1 className="">Comming Soon....</h1> */}
-
-
-{/* <div className="relative overflow-hidden">
-  <h1 className="text-center text-4xl font-bold text-white animate-pulse">
-    <span className="inline-block animate-bounce">C</span>
-    <span className="inline-block animate-bounce delay-100">o</span>
-    <span className="inline-block animate-bounce delay-200">m</span>
-    <span className="inline-block animate-bounce delay-300">i</span>
-    <span className="inline-block animate-bounce delay-400">n</span>
-    <span className="inline-block animate-bounce delay-500">g</span>
-    <span className="inline-block ml-4"></span>
-    <span className="inline-block animate-bounce delay-600">S</span>
-    <span className="inline-block animate-bounce delay-700">o</span>
-    <span className="inline-block animate-bounce delay-800">o</span>
-    <span className="inline-block animate-bounce delay-900">n</span>
-    <span className="inline-block animate-spin delay-1000 ml-2">...</span>
-  </h1>
-  
-
-</div> */}
-
-
-
-    </div>
-  )
+interface Sponsor {
+  _id: string;
+  name: string;
+  logoUrl: string;
+  website: string;
+  description?: string;
 }
 
-export default Sponsers
+const Sponsers = () => {
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSponsors = async () => {
+      const data = await fetchAllSponsors();
+      setSponsors(data);
+      setLoading(false);
+    };
+    loadSponsors();
+  }, []);
+
+  return (
+    <div className="mt-[80px] min-h-[90vh] relative overflow-hidden">
+      <Image
+        src={RadialBgRed}
+        alt="background"
+        className="opacity-20 sm:opacity-40 md:opacity-55 lg:opacity-65 absolute left-1/2 transform -translate-x-1/2 z-0"
+      />
+      <Image src={Hexagon} alt="hexagon decoration" className="absolute z-0" />
+
+      {/* About Us Section */}
+      <div className="flex flex-col items-center pt-0 pb-4 sm:pb-8 relative z-20">
+        <Container>
+          <div className="flex justify-center relative z-30 w-full max-w-[700px] mx-auto">
+            <Image
+              src={AboutUs}
+              alt="about us"
+              className="object-contain"
+              priority
+            />
+          </div>
+        </Container>
+      </div>
+      {/* Cards Section */}
+
+      <Container>
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-pulse text-gray-500 text-xl">
+              Loading sponsors...
+            </div>
+          </div>
+        ) : sponsors.length === 0 ? (
+          <div className="text-center py-20 text-gray-500">
+            No sponsors yet. Check back soon!
+          </div>
+        ) : (
+          <CardContainer>
+            {sponsors.map((sponsor, index) => (
+              <Card
+                key={sponsor._id}
+                id={index}
+                title={sponsor.name}
+                imageUrl={sponsor.logoUrl}
+                redirectURL={sponsor.website}
+              />
+            ))}
+          </CardContainer>
+        )}
+      </Container>
+    </div>
+  );
+};
+
+export default Sponsers;

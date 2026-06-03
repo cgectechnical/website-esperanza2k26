@@ -1,15 +1,14 @@
 "use client";
-import espLogo from "@/assets/images/espLogo.png"; 
-import { div } from "framer-motion/client";
+import espLogo from "@/assets/images/espLogo.png";
 import Image from "next/image";
 
 const Logo = () => {
-return (
+  return (
     <div>
-    <div className="rotate">
-        <Image src={espLogo} alt="Esperanza 2025 Logo" width={120} height={130} />
-    </div>
-    <style jsx>
+      <div className="rotate">
+        <Image src={espLogo} alt="Esperanza 2026 Logo" width={60} height={65} />
+      </div>
+      <style>
         {`
         .rotate{
         animation: spin 4000ms linear infinite;
@@ -26,9 +25,9 @@ return (
             }
         }
         `}
-    </style>
+      </style>
     </div>
-);
+  );
 };
 
 export default Logo;

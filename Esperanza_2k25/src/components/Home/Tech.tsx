@@ -7,17 +7,8 @@ import babyrobot from "@/assets/images/babyrobot.png";
 import explore from "@/assets/images/Group45.png";
 import star3 from "@/assets/images/Star 2.png";
 //import meetOurDevelopers from "@/assets/images/meetOurDevelopers.png"
-import { Sedgwick_Ave_Display } from "next/font/google";
-import { Katibeh } from "next/font/google";
-
-const sedgwick = Sedgwick_Ave_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-})
-const katibeh = Katibeh({
-  subsets: ["latin"],
-  weight: ["400"],
-})
+import { sedgwick } from "@/utils/fonts";
+import AnimatedLine from "./AnimatedLine";
 const Tech = () => {
   const shadowRef = useRef<SVGSVGElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -54,14 +45,14 @@ const Tech = () => {
 
   return (
     <section ref={sectionRef} className="py-16 px-8 max-w-6xl mx-auto">
-      <div className="relative inline-block mb-12 mx-auto w-full">
-        <h1 className={`${katibeh.className} text-5xl md:text-8xl font-bold text-gray-200 text-center relative z-10 katibeh-regular`}>
+      <div className="relative inline-block mb-4 mx-auto w-full">
+        <h1 className={`${sedgwick.className} text-5xl md:text-8xl font-bold text-gray-200 text-center relative z-10`}>
           Technical Events
         </h1>
 
         <svg
           ref={shadowRef}
-          className={`${katibeh.className} absolute top-7 left-4 w-full h-full katibeh-regular`}
+          className={`${sedgwick.className} absolute top-7 left-4 w-full h-full`}
           style={{
             strokeDasharray: 1000,
             strokeDashoffset: 1000,
@@ -80,27 +71,32 @@ const Tech = () => {
           </text>
         </svg>
       </div>
+      <AnimatedLine />
 
       
       <div className="flex flex-col md:flex-row gap-20 items-center">
 
         <div className="flex-1 min-w-[300px] relative top-20">
-          <p className={`${sedgwick.className} text-lg text-gray-200 leading-relaxed underdog`}>
-          Step into the electrifying Tech Phase of Esperanza 2025 — a three-day extravaganza (April 22nd–24th) where innovation takes center stage! 
-          Gear up for adrenaline-pumping hackathons, brain-teasing coding challenges, intricate bridge-making battles, mind-blowing robotics competitions, and many more events designed to test your creativity, logic, and engineering prowess. 
-          Whether you're a seasoned coder, an aspiring engineer, or a curious learner, there’s a challenge waiting just for you. 
-          This is more than a competition—it’s a celebration of ideas, collaboration, and pushing the boundaries of what’s possible. 
-          Come build, break, innovate, and ignite the future—because tech isn't just an event here, it's an experience!
-          </p>
-          <Link href="/events/technical" passHref legacyBehavior>
-          <a  target="_blank" className="inline-block">
+<p className={`${sedgwick.className} text-lg text-gray-200 leading-relaxed underdog`}>
+  Welcome to Esperanza’26 — the Tech Cum Cultural Fest of Cooch Behar Government Engineering College (CGEC), from 16th–20th June 2026.
+
+  Experience an exciting blend of technology, creativity, and culture. The first three days will feature technical events like{" "}
+  
+  <span className="bg-white/10 px-2 py-1 rounded-md text-white">
+    hackathons, coding, robotics, esports, quizzes
+  </span>
+  
+  {" "}and many more innovation-driven challenges.
+
+  Esperanza’26 is not just a fest — it’s a celebration of talent, innovation, and unforgettable memories.
+</p>
+          <Link href="/events/technical" className="inline-block">
           <Image
             src={explore}
             alt=""
             width={270}
             className='pt-[50] w-[75%] md:w-full hover:scale-108 transition-transform duration-300 cursor-pointer'
           />
-          </a>
           </Link>
         </div>
 

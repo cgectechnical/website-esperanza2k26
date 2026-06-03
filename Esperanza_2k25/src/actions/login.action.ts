@@ -6,12 +6,14 @@ import { CredentialsSignin } from "next-auth";
 
 export const login = async (loginCredentials: LoginCredentials) => {
   try {
-    await signIn("credentials", {
+    const result = await signIn("credentials", {
       email : loginCredentials.email,
       password : loginCredentials.password,
+      redirect: false,
     });
+    return result;
   } catch (error) {
     const err = error as CredentialsSignin;
-    return err.cause
+    return { error: err.message || err.cause };
   }
 };

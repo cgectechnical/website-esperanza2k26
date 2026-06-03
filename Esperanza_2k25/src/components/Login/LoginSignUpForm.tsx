@@ -3,28 +3,22 @@
 import { login } from "@/actions/login.action";
 import { signUp } from "@/actions/signup.action";
 import { SignUpFormPayload } from "@/interfaces/signup.interface";
-import { Sedgwick_Ave_Display,Karla } from "next/font/google";
-import { redirect } from "next/navigation";
+import { sedgwick, roboto } from "@/utils/fonts";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-const sedgwick = Sedgwick_Ave_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-})
-const karla = Karla({
-  subsets: ["latin"],
-  weight: "700",
-});
-import {
-  FaEye,
-  FaEyeSlash,
-  FaGithub,
-  FaGoogle,
-  FaLinkedin,
-} from "react-icons/fa";
-import Swal from "sweetalert2";
+import { useSession } from "next-auth/react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import customSwal from "@/utils/swal";
+import ForgotPasswordFlow from "./ForgotPasswordFlow";
 
 const LoginSignUpForm = () => {
   const [loginTabActive, SetLoginTabActive] = useState<boolean>(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+
+  if (isForgotPassword) {
+    return <ForgotPasswordFlow onBack={() => setIsForgotPassword(false)} />;
+  }
+
   return (
     <>
       <div className="flex justify-center gap-8 relative z-50">
@@ -45,12 +39,18 @@ const LoginSignUpForm = () => {
           Sign Up
         </button>
       </div>
-      {loginTabActive ? <LoginForm /> : <SignUpForm />}
+      {loginTabActive ? (
+        <LoginForm onForgotPassword={() => setIsForgotPassword(true)} />
+      ) : (
+        <SignUpForm onSignUpSuccess={() => SetLoginTabActive(true)} />
+      )}
     </>
   );
 };
 
-const LoginForm = () => {
+const LoginForm = ({ onForgotPassword }: { onForgotPassword: () => void }) => {
+  const router = useRouter();
+  const { update } = useSession();
   const [loginCredentials, setLoginCredentials] = useState({
     email: "",
     password: "",
@@ -59,35 +59,42 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleFormSubmit = async () => {
-    const err = await login(loginCredentials)
+    const result = await login(loginCredentials);
 
-    if(!err){
-      Swal.fire({
-        title: "Login Successful",
-        text: `Welcome back!`,
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        setLoginCredentials({ email: "", password: "" });
-        redirect("/")
-      });
+    if (!result?.error) {
+      customSwal
+        .fire({
+          title: "Login Successful",
+          text: `Welcome back!`,
+          icon: "success",
+          confirmButtonText: "OK",
+        })
+        .then(async () => {
+          setLoginCredentials({ email: "", password: "" });
+          await update();
+          router.refresh();
+          router.push("/");
+        });
     } else {
-      Swal.fire({
+      customSwal.fire({
         title: "Login Failed",
-        text: String(err) || "Something went wrong",
+        text: String(result.error) || "Something went wrong",
         icon: "error",
         confirmButtonText: "OK",
       });
     }
-  }
+  };
 
   return (
-    <form action={handleFormSubmit} className="relative z-50 h-full flex flex-col p-4 sm:p-6 md:py-8 md:px-12 max-w-[500px] m-auto gap-3 sm:gap-5 md:gap-8">
+    <form
+      action={handleFormSubmit}
+      className="relative z-50 h-full flex flex-col p-4 sm:p-6 md:py-8 md:px-12 max-w-[500px] m-auto gap-3 sm:gap-5 md:gap-8"
+    >
       <input
         type="email"
         placeholder="Enter your Email address"
         required
-        className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${karla.className}`}
+        className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${roboto.className}`}
         value={loginCredentials.email}
         onChange={(e) => {
           setLoginCredentials({ ...loginCredentials, email: e.target.value });
@@ -97,7 +104,7 @@ const LoginForm = () => {
         <input
           type={showPassword ? "text" : "password"}
           placeholder="Enter Password"
-          className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none w-full ${karla.className}`}
+          className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none w-full ${roboto.className}`}
           required
           value={loginCredentials.password}
           onChange={(e) => {
@@ -115,34 +122,28 @@ const LoginForm = () => {
           {showPassword ? <FaEyeSlash /> : <FaEye />}
         </button>
       </div>
+      <div className="flex justify-end -mt-4">
+        <button
+          type="button"
+          onClick={onForgotPassword}
+          className={`text-white/70 hover:text-white text-sm ${roboto.className}`}
+        >
+          Forgot Password?
+        </button>
+      </div>
       <button
         type="submit"
-        className={`bg-red-700 rounded-2xl cursor-pointer px-6 py-4 ${karla.className}`}
+        className={`bg-red-700 rounded-2xl cursor-pointer px-6 py-4 ${sedgwick.className}`}
       >
         Login
       </button>
-      <div className={`flex items-center gap-2 ${sedgwick.className}`}>
-        <span className="h-[1px] flex flex-1 bg-red-400"></span>
-        <span>Or Connect With</span>
-        <span className="h-[1px] flex flex-1 bg-red-400"></span>
-      </div>
-      <div className="flex justify-around">
-        <button className={`text-4xl bg-white p-2 rounded cursor-pointer ${sedgwick.className}`}>
-          <FaGoogle color="black" />
-        </button>
-        <button className={`text-4xl bg-white p-2 rounded cursor-pointer ${sedgwick.className}`}>
-          <FaGithub color="black" />
-        </button>
-        <button className={`text-4xl bg-white p-2 rounded cursor-pointer ${sedgwick.className}`}>
-          <FaLinkedin color="black" />
-        </button>
-      </div>
     </form>
   );
 };
 
-const SignUpForm = () => {
+const SignUpForm = ({ onSignUpSuccess }: { onSignUpSuccess: () => void }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const [signUpCredentials, setSignUpCredentials] = useState<SignUpFormPayload>(
     {
@@ -150,61 +151,69 @@ const SignUpForm = () => {
       year: "",
       department: "",
       rollNumber: "",
-      "credentials": {
+      credentials: {
         email: "",
         password: "",
         phoneNumber: "",
       },
-    }
+    },
   );
 
-  const handleFormSubmit = async()=>{
-    if(signUpCredentials.department==="" || signUpCredentials.year===""){
-      Swal.fire({
-        title : "All fields are requied",
-        text : "Year and Department are requierd",
-        icon : "warning"
-      })
-      return
+  const handleFormSubmit = async () => {
+    if (signUpCredentials.department === "" || signUpCredentials.year === "") {
+      customSwal.fire({
+        title: "All fields are requied",
+        text: "Year and Department are requierd",
+        icon: "warning",
+      });
+      return;
     }
-    
+
     const response = await signUp(signUpCredentials);
-    if(response?.success){
-      Swal.fire({
-        title: "User Created Successfully",
-        text: `User Email: ${response?.userEmail}`,
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        setSignUpCredentials({
-          name: "",
-          year: "",
-          department: "",
-          rollNumber: "",
-          credentials: {
-            email: "",
-            password: "",
-            phoneNumber: "",
-          },
+    if (response?.success) {
+      customSwal
+        .fire({
+          title: "User Created Successfully",
+          text: `User Email: ${response?.userEmail}`,
+          icon: "success",
+          confirmButtonText: "OK",
         })
-      })
-    }else{
-      Swal.fire({
+        .then(() => {
+          setSignUpCredentials({
+            name: "",
+            year: "",
+            department: "",
+            rollNumber: "",
+            credentials: {
+              email: "",
+              password: "",
+              phoneNumber: "",
+            },
+          });
+          onSignUpSuccess();
+          router.push("/login");
+          router.refresh();
+        });
+    } else {
+      customSwal.fire({
         title: "User Creation Failed",
         text: response?.error || "Something went wrong",
         icon: "error",
         confirmButtonText: "OK",
       });
     }
-  }
+  };
 
   return (
-    <form action={handleFormSubmit}  className="relative z-50 h-full flex flex-col p-4 sm:p-6 md:py-8 md:px-12 max-w-[500px] m-auto gap-3 sm:gap-5 md:gap-8">
+    <form
+      action={handleFormSubmit}
+      className="relative z-50 h-full flex flex-col p-4 sm:p-6 md:py-8 md:px-12 max-w-[500px] m-auto gap-3 sm:gap-5 md:gap-8"
+    >
       <input
         type="email"
         placeholder="Email"
         required
-        className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${karla.className}`}
+        className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${roboto.className}`}
         value={signUpCredentials?.credentials.email}
         onChange={(e) => {
           setSignUpCredentials({
@@ -220,7 +229,7 @@ const SignUpForm = () => {
         type="text"
         placeholder="Full Name"
         required
-        className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${karla.className}`}
+        className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${roboto.className}`}
         value={signUpCredentials.name}
         onChange={(e) => {
           setSignUpCredentials({
@@ -235,7 +244,7 @@ const SignUpForm = () => {
           onChange={(e) =>
             setSignUpCredentials({ ...signUpCredentials, year: e.target.value })
           }
-          className={`p-2 flex flex-1 bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${karla.className}`}
+          className={`p-2 flex flex-1 bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${roboto.className}`}
         >
           <option value="">Select Year</option>
           <option value="1st">1st</option>
@@ -251,7 +260,7 @@ const SignUpForm = () => {
               department: e.target.value,
             })
           }
-          className={`p-2 flex flex-1 bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${karla.className}`}
+          className={`p-2 flex flex-1 bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${roboto.className}`}
         >
           <option value="">Select Department</option>
           <option value="CE">CE</option>
@@ -265,7 +274,7 @@ const SignUpForm = () => {
         type="text"
         placeholder="Roll Number"
         required
-        className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${karla.className}`}
+        className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${roboto.className}`}
         value={signUpCredentials.rollNumber}
         onChange={(e) =>
           setSignUpCredentials({
@@ -278,15 +287,15 @@ const SignUpForm = () => {
         type="text"
         placeholder="Phone Number"
         required
-        className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${karla.className}`}
+        className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none ${roboto.className}`}
         value={signUpCredentials.credentials.phoneNumber}
         onChange={(e) =>
           setSignUpCredentials({
             ...signUpCredentials,
-            credentials : {
+            credentials: {
               ...signUpCredentials.credentials,
-              phoneNumber : e.target.value
-            }
+              phoneNumber: e.target.value,
+            },
           })
         }
       />
@@ -294,7 +303,7 @@ const SignUpForm = () => {
         <input
           type={showPassword ? "text" : "password"}
           placeholder="Password"
-          className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none w-full ${karla.className}`}
+          className={`bg-white/70 placeholder:text-black/65 px-6 py-4 rounded-2xl text-black outline-none w-full ${roboto.className}`}
           required
           value={signUpCredentials.credentials.password}
           onChange={(e) =>
@@ -317,26 +326,10 @@ const SignUpForm = () => {
       </div>
       <button
         type="submit"
-        className={`bg-red-700 rounded-2xl cursor-pointer px-6 py-4 ${karla.className}`}
+        className={`bg-red-700 rounded-2xl cursor-pointer px-6 py-4 ${sedgwick.className}`}
       >
         Sign Up
       </button>
-      <div className={`flex items-center gap-2 ${sedgwick.className}`}>
-        <span className="h-[1px] flex flex-1 bg-red-400"></span>
-        <span>Or Connect With</span>
-        <span className="h-[1px] flex flex-1 bg-red-400"></span>
-      </div>
-      <div className="flex justify-around">
-        <button className={`text-4xl bg-white p-2 rounded cursor-pointer ${sedgwick.className}`}>
-          <FaGoogle color="black" />
-        </button>
-        <button className={`text-4xl bg-white p-2 rounded cursor-pointer ${sedgwick.className}`}>
-          <FaGithub color="black" />
-        </button>
-        <button className={`text-4xl bg-white p-2 rounded cursor-pointer ${sedgwick.className}`}>
-          <FaLinkedin color="black" />
-        </button>
-      </div>
     </form>
   );
 };
