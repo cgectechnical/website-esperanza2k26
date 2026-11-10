@@ -46,9 +46,7 @@ const Home = async () => {
       <div className="mt-16 md:mt-20">
         <PhotoContainer />
       </div>
-      <div className="mt-16 md:mt-20">
-        <Band />
-      </div>
+      <Band />
       <div className="mt-16 md:mt-20">
         <Tech />
       </div>

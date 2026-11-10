@@ -13,6 +13,7 @@ import { Calendar, TimerIcon } from "lucide-react";
 import { sedgwick } from "@/utils/fonts";
 import Image from "next/image";
 import PDFViewer from "@/components/Shared/PDFViewer";
+import LoaderComponent from "@/components/Shared/Loader";
 
 export default function CulturalEventPage({ params }: any) {
   const { data: session } = useSession();
@@ -31,11 +32,7 @@ export default function CulturalEventPage({ params }: any) {
   }, [uniqueId]);
   
   if (!event) {
-    return (
-      <div className="min-h-[90vh] mt-[80px] relative flex items-center justify-center">
-        <div className="animate-pulse text-white">Loading...</div>
-      </div>
-    );
+    return <LoaderComponent />;
   }
 
   const staticPoster = staticEventsData.find((e) => e.uniqueId == uniqueId)?.poster;

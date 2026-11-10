@@ -102,26 +102,23 @@ const PhotoContainer = () => {
 
 <div className="flex-1 min-w-[300px] relative top-20 left-[0] md:left-[40]">
 
-<div className={`${sedgwick.className} text-base md:text-lg text-gray-200 leading-relaxed underdog space-y-4`}>
+<div className={`${sedgwick.className} text-lg md:text-xl text-gray-200 leading-relaxed space-y-4`}>
 
   <p>
     Welcome to{" "}
-    <span className="bg-yellow-400/20 text-yellow-300 px-1">
+    <span className="text-amber-400 font-semibold drop-shadow-[0_0_12px_rgba(251,191,36,0.4)]">
       Esperanza’26
     </span>
-    , the Tech Cum Cultural Fest of CGEC, from{" "}
-    <span className="bg-pink-400/20 text-pink-300 px-1">
-      16th–20th June 2026
-    </span>.
+    , the Tech Cum Cultural Fest of CGEC.
   </p>
 
   <p>
     Three days of exciting{" "}
-    <span className="bg-purple-400/20 text-purple-300 px-1">
+    <span className="text-cyan-400 font-semibold drop-shadow-[0_0_12px_rgba(34,211,238,0.4)]">
       technical events
     </span>
     , followed by two days of vibrant{" "}
-    <span className="bg-red-400/20 text-red-300 px-1">
+    <span className="text-orange-400 font-semibold drop-shadow-[0_0_12px_rgba(251,146,60,0.4)]">
       cultural celebrations
     </span>
     .
@@ -129,12 +126,12 @@ const PhotoContainer = () => {
 
   <p>
     Esperanza’26 says : —{" "}
-    <span className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-amber-400/20 via-orange-400/20 to-yellow-300/20 border border-amber-300/20 text-amber-200 tracking-[0.25em] uppercase text-sm backdrop-blur-md shadow-lg">
-      "Where Technology Meets Culture & Innovation Meets Tradition"
+    <span className="inline-block mt-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-transparent border border-amber-500/30 text-amber-300 tracking-wider text-base backdrop-blur-sm shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+      “Where Technology Meets Culture & Innovation Meets Tradition”
     </span>
   </p>
 
-  <p className="text-xl text-white">
+  <p className="text-xl md:text-2xl text-white font-bold tracking-wide drop-shadow-[0_2px_8px_rgba(255,255,255,0.2)]">
     Create Memories. Create History.
   </p>
 

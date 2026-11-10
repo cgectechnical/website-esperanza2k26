@@ -15,6 +15,7 @@ import { fetchAllEvents } from "@/actions/fetch.action";
 import { auth } from "@/auth";
 import { sedgwick } from "@/utils/fonts";
 import { useSession } from "next-auth/react";
+import LoaderComponent from "@/components/Shared/Loader";
 
 const Technical = () => {
   const [events, setEvents] = useState<any[]>([]);
@@ -50,11 +51,7 @@ const Technical = () => {
   }, [searchQuery, events]);
 
   if (loading) {
-    return (
-      <div className="min-h-[90vh] mt-[80px] relative flex items-center justify-center">
-        <div className="animate-pulse text-white">Loading...</div>
-      </div>
-    );
+    return <LoaderComponent />;
   }
 
   return (
