@@ -1,330 +1,313 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { Sedgwick_Ave_Display } from "next/font/google";
+
+const sedgwick = Sedgwick_Ave_Display({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-sedgwick",
+});
 
 const LoaderComponent = () => {
-  const starsRef = useRef<HTMLDivElement>(null);
-  const embersRef = useRef<HTMLDivElement>(null);
-  const ringsRef = useRef<HTMLDivElement>(null);
-  const lettersRef = useRef<HTMLDivElement>(null);
-  const dripRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
+
   useEffect(() => {
-    const word = "ESPERANZA";
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-    // Letters
-    const lettersEl = lettersRef.current;
-    if (lettersEl) {
-      lettersEl.innerHTML = "";
-      word.split("").forEach((ch, i) => {
-        const span = document.createElement("span");
-        span.className = "fire-letter";
-        span.textContent = ch;
-        span.style.setProperty("--dur", 2.6 + Math.random() * 1.4 + "s");
-        span.style.setProperty("--delay", i * 0.22 + "s");
-        lettersEl.appendChild(span);
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Particle system
+    type Particle = {
+      x: number; y: number;
+      vx: number; vy: number;
+      life: number; maxLife: number;
+      size: number;
+      color: string;
+      type: "ember" | "star";
+    };
+
+    const particles: Particle[] = [];
+    const starColors = ["#ffd060", "#ffe090", "#fff4c0", "#ffb030", "#ffffff"];
+    const emberColors = ["#ff2200", "#ff5500", "#ff8800", "#ffaa00"];
+
+    // Pre-seed static stars
+    for (let i = 0; i < 70; i++) {
+      particles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: 0, vy: 0,
+        life: Math.random() * 300,
+        maxLife: 200 + Math.random() * 400,
+        size: 1 + Math.random() * 2.5,
+        color: starColors[Math.floor(Math.random() * starColors.length)],
+        type: "star",
       });
     }
 
-    // Drips
-    const dripEl = dripRef.current;
-    if (dripEl) {
-      dripEl.innerHTML = "";
-      const heights = [10, 14, 20, 28, 38, 48, 38, 28, 20, 14, 10, 8, 6];
-      heights.forEach((h, i) => {
-        const d = document.createElement("div");
-        d.className = "drip-seg";
-        d.style.setProperty("--bh", h + "px");
-        d.style.setProperty("--dd", 1.6 + Math.random() * 1.2 + "s");
-        d.style.setProperty("--dl", i * 0.13 + "s");
-        dripEl.appendChild(d);
+    let frameCount = 0;
+
+    const spawnEmber = () => {
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      particles.push({
+        x: cx + (Math.random() - 0.5) * 180,
+        y: cy + 10,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: -(0.6 + Math.random() * 1.8),
+        life: 0,
+        maxLife: 80 + Math.random() * 100,
+        size: 1.5 + Math.random() * 3,
+        color: emberColors[Math.floor(Math.random() * emberColors.length)],
+        type: "ember",
       });
-    }
+    };
 
-    // Stars
-    const starsEl = starsRef.current;
-    if (starsEl) {
-      starsEl.innerHTML = "";
-      const starCols = ["#ffd060", "#ffe090", "#fff4c0", "#ffb030", "#ffffff"];
-      for (let i = 0; i < 60; i++) {
-        const sz = 3 + Math.random() * 7;
-        const col = starCols[Math.floor(Math.random() * starCols.length)];
-        const clipPath =
-          Math.random() > 0.5
-            ? "polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"
-            : "polygon(50% 0%,54% 46%,100% 50%,54% 54%,50% 100%,46% 54%,0% 50%,46% 46%)";
+    const draw = () => {
+      frameCount++;
+      const W = canvas.width;
+      const H = canvas.height;
 
-        const wrapper = document.createElement("div");
-        wrapper.style.cssText = `
-          position:absolute;
-          left:${Math.random() * 100}%;
-          top:${Math.random() * 100}%;
-          animation: starTwinkle ${2 + Math.random() * 5}s ease-in-out infinite ${Math.random() * 6}s;
-          --lo:${0.25 + Math.random() * 0.45};
-        `;
+      // Clear with dark fade
+      ctx.fillStyle = "rgba(6, 0, 0, 0.18)";
+      ctx.fillRect(0, 0, W, H);
 
-        const inner = document.createElement("div");
-        inner.style.cssText = `
-          width:${sz}px;
-          height:${sz}px;
-          background:${col};
-          clip-path:${clipPath};
-        `;
+      const cx = W / 2;
+      const cy = H / 2;
 
-        wrapper.appendChild(inner);
-        starsEl.appendChild(wrapper);
+      // ── Background deep radial glow ──────────────────────────────
+      const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.6);
+      bg.addColorStop(0, "rgba(60, 5, 0, 0.55)");
+      bg.addColorStop(0.4, "rgba(20, 2, 0, 0.3)");
+      bg.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // ── Crack SVG lines (drawn on canvas) ──────────────────────
+      ctx.save();
+      ctx.strokeStyle = "rgba(200, 30, 0, 0.18)";
+      ctx.lineWidth = 1;
+      const lines = [
+        [[cx, cy], [cx - 155, cy - 72], [cx - 265, cy - 205]],
+        [[cx, cy], [cx + 150, cy - 85], [cx + 285, cy - 225]],
+        [[cx, cy], [cx + 42, cy + 72], [cx + 125, cy + 185], [cx + 200, cy + 255]],
+        [[cx, cy], [cx - 125, cy + 92], [cx - 190, cy + 215]],
+        [[cx, cy], [cx - 82, cy + 15], [cx - 195, cy + 45], [cx - 320, cy + 60]],
+        [[cx, cy], [cx + 92, cy + 10], [cx + 258, cy + 30], [cx + 420, cy + 20]],
+      ];
+      lines.forEach((pts) => {
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for (let p = 1; p < pts.length; p++) ctx.lineTo(pts[p][0], pts[p][1]);
+        ctx.stroke();
+      });
+      ctx.restore();
+
+      // ── Concentric elliptic rings — REMOVED ──────────────────────
+
+      // ── Particles (stars + embers) ──────────────────────────────
+      if (frameCount % 2 === 0) spawnEmber();
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.life++;
+
+        if (p.type === "star") {
+          const pulse = 0.3 + 0.7 * Math.abs(Math.sin((p.life * 0.015) + i));
+          ctx.save();
+          ctx.globalAlpha = pulse * 0.9;
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.shadowBlur = 6;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          // ember
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy -= 0.012; // slight upward acceleration
+          p.vx *= 0.98;
+          const prog = p.life / p.maxLife;
+          const alpha = prog < 0.3 ? prog / 0.3 : (1 - prog);
+          ctx.save();
+          ctx.globalAlpha = alpha * 0.85;
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.shadowBlur = p.size * 3;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * (1 - prog * 0.6), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          if (p.life >= p.maxLife) {
+            particles.splice(i, 1);
+          }
+        }
       }
-    }
 
-    // Embers
-    const embersEl = embersRef.current;
-    if (embersEl) {
-      embersEl.innerHTML = "";
-      const emberCols = ["#ff2200", "#ff5500", "#ff8800", "#ffaa00", "#dd1100"];
-      for (let i = 0; i < 25; i++) {
-        const e = document.createElement("div");
-        const sz = 2 + Math.random() * 5;
-        const col = emberCols[Math.floor(Math.random() * emberCols.length)];
-        e.style.cssText = `
-          position:absolute;
-          border-radius:50%;
-          left:${20 + Math.random() * 60}%;
-          bottom:${10 + Math.random() * 40}%;
-          width:${sz}px;
-          height:${sz}px;
-          background:${col};
-          box-shadow:0 0 ${sz + 3}px ${col};
-          animation: emberUp ${3 + Math.random() * 5}s ease-out infinite ${Math.random() * 6}s;
-          opacity:0;
-          --ex:${(Math.random() - 0.5) * 90}px;
-        `;
-        embersEl.appendChild(e);
-      }
-    }
+      animRef.current = requestAnimationFrame(draw);
+    };
 
-    // Rings
-    const ringsEl = ringsRef.current;
-    if (ringsEl) {
-      ringsEl.innerHTML = "";
-      for (let i = 0; i < 5; i++) {
-        const r = document.createElement("div");
-        const sz = 100 + i * 55;
-        r.style.cssText = `
-          position:absolute;
-          border-radius:50%;
-          border:1px solid rgba(200,30,0,0.25);
-          width:${sz}px;
-          height:${sz * 0.5}px;
-          left:50%;
-          top:58%;
-          margin-left:${-sz / 2}px;
-          margin-top:${-(sz * 0.5) / 2}px;
-          animation: ringOut ${5 + i * 1.5}s ease-out infinite ${i * 1.3}s;
-          pointer-events:none;
-          z-index:1;
-        `;
-        ringsEl.appendChild(r);
-      }
-    }
+    animRef.current = requestAnimationFrame(draw);
 
-    return () => {};
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
   return (
-    <>
-      <style>{`
-        @keyframes starTwinkle {
-          0%, 100% { opacity: var(--lo, 0.3); transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.4); }
-        }
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "#060000",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        zIndex: 9999,
+      }}
+    >
+      {/* Canvas for particles, rings, cracks */}
+      <canvas
+        ref={canvasRef}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+      />
 
-        @keyframes letterHeat {
-          0%, 100% {
-            color: #ff3300;
-            text-shadow:
-              0 0 3px #ffcc88,
-              0 0 10px #ff8800,
-              0 0 24px #ff4400,
-              0 0 48px #cc1100,
-              0 0 70px #880000;
-            transform: translateY(0) scale(1);
-          }
-          25% {
-            color: #ff6600;
-            text-shadow:
-              0 0 5px #ffffff,
-              0 0 14px #ffaa00,
-              0 0 32px #ff6600,
-              0 0 60px #dd2200,
-              0 0 90px #aa0000;
-            transform: translateY(-3px) scale(1.02);
-          }
-          50% {
-            color: #ff4400;
-            text-shadow:
-              0 0 4px #ffddaa,
-              0 0 12px #ff8800,
-              0 0 28px #ff4400,
-              0 0 55px #cc1100,
-              0 0 85px #880000;
-            transform: translateY(2px) scale(1.01);
-          }
-          75% {
-            color: #ee2200;
-            text-shadow:
-              0 0 6px #ffffff,
-              0 0 16px #ff9900,
-              0 0 36px #ff5500,
-              0 0 65px #bb1100,
-              0 0 95px #770000;
-            transform: translateY(-1px) scale(1.015);
-          }
-        }
-
-        @keyframes dripPulse {
-          0%, 100% { height: var(--bh, 16px); opacity: 0.75; }
-          50% { height: calc(var(--bh, 16px) * 1.7); opacity: 1; }
-        }
-
-        @keyframes emberUp {
-          0% { transform: translate(0, 0); opacity: 1; }
-          80% { opacity: 0.6; }
-          100% { transform: translate(var(--ex, 20px), -180px); opacity: 0; }
-        }
-
-        @keyframes ringOut {
-          0% { transform: scale(0.1); opacity: 0.8; }
-          100% { transform: scale(3); opacity: 0; }
-        }
-
-        .fire-letter {
-          font-family: 'Arial Black', 'Impact', sans-serif;
-          font-size: clamp(48px, 8vw, 80px);
-          font-weight: 900;
-          font-style: italic;
-          color: #ff2200;
-          display: inline-block;
-          animation: letterHeat var(--dur, 3s) ease-in-out infinite var(--delay, 0s);
-          text-shadow:
-            0 0 4px #ffffff,
-            0 0 12px #ff8800,
-            0 0 28px #ff4400,
-            0 0 55px #cc1100,
-            0 0 80px #880000;
-          position: relative;
-          line-height: 1;
-          padding: 0 2px;
-        }
-
-        .drip-seg {
-          width: 7px;
-          border-radius: 4px 4px 50% 50%;
-          background: linear-gradient(to bottom, #ff5500, #dd2200, #990000);
-          box-shadow: 0 0 8px #ff3300;
-          animation: dripPulse var(--dd, 2s) ease-in-out infinite var(--dl, 0s);
-        }
-      `}</style>
-
+      {/* Main text content */}
       <div
         style={{
-          position: "fixed",
-          inset: 0,
-          background: "#080000",
+          position: "relative",
+          zIndex: 20,
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
-          zIndex: 9999,
+          gap: "28px",
+          userSelect: "none",
         }}
       >
-        {/* Background radial glow */}
-        <div
+        {/* ESPERANZA heading */}
+        <h1
+          className={sedgwick.className}
           style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(ellipse 65% 55% at 50% 58%, #4a0800 0%, #1e0100 45%, #080000 100%)",
+            fontSize: "clamp(52px, 9vw, 96px)",
+            fontStyle: "italic",
+            fontWeight: 400,
+            color: "#ff3300",
+            margin: 0,
+            lineHeight: 1,
+            letterSpacing: "0.06em",
+            textShadow: `
+              0 0 4px  #fff4e0,
+              0 0 12px #ff9900,
+              0 0 28px #ff4400,
+              0 0 56px #cc1100,
+              0 0 90px #880000
+            `,
+            animation: "esp-flicker 3.2s ease-in-out infinite",
           }}
-        />
-
-        {/* Crack SVG */}
-        <svg
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            opacity: 0.3,
-          }}
-          viewBox="0 0 900 500"
-          preserveAspectRatio="xMidYMid slice"
-          xmlns="http://www.w3.org/2000/svg"
         >
-          <g stroke="#cc2200" strokeWidth="1.2" fill="none">
-            <path d="M450 250 L300 180 L190 50" />
-            <path d="M450 250 L600 165 L730 30" />
-            <path d="M450 250 L490 320 L570 430 L640 500" />
-            <path d="M450 250 L330 340 L260 460" />
-            <path d="M450 250 L370 265 L260 295 L140 310" />
-            <path d="M450 250 L540 260 L700 280 L860 270" />
-            <path d="M300 180 L260 215 L185 195" />
-            <path d="M600 165 L640 205 L700 195" />
-          </g>
-          <g stroke="#880000" strokeWidth="0.6" fill="none" opacity="0.7">
-            <path d="M450 250 L435 130 L405 60" />
-            <path d="M450 250 L560 295 L595 370 L555 460" />
-            <path d="M300 180 L275 130" />
-            <path d="M600 165 L645 115" />
-          </g>
-        </svg>
+          ESPERANZA
+        </h1>
 
-        {/* Stars */}
-        <div
-          ref={starsRef}
-          style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
-        />
+        {/* Subtitle */}
+        <p
+          className={sedgwick.className}
+          style={{
+            fontSize: "clamp(11px, 1.5vw, 15px)",
+            letterSpacing: "0.35em",
+            color: "rgba(255, 120, 60, 0.75)",
+            margin: 0,
+            textTransform: "uppercase",
+            textShadow: "0 0 10px rgba(255, 80, 0, 0.4)",
+            animation: "esp-fade-in 1.6s ease-out forwards",
+          }}
+        >
+          Tech &nbsp;&bull;&nbsp; Culture &nbsp;&bull;&nbsp; Innovation
+        </p>
 
-        {/* Embers */}
-        <div
-          ref={embersRef}
-          style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
-        />
-
-        {/* Heat rings */}
-        <div
-          ref={ringsRef}
-          style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
-        />
-
-        {/* Main content */}
+        {/* Elegant thin progress line */}
         <div
           style={{
+            width: "clamp(120px, 20vw, 220px)",
+            height: "1px",
+            background: "rgba(255,50,0,0.15)",
+            borderRadius: "9999px",
+            overflow: "hidden",
             position: "relative",
-            zIndex: 20,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "24px",
-            padding: "40px 20px",
           }}
         >
-          {/* ESPERANZA letters */}
           <div
-            ref={lettersRef}
             style={{
-              display: "flex",
-              alignItems: "center",
-              flexWrap: "nowrap",
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(90deg, transparent, #ff4400, #ff9900, #ff4400, transparent)",
+              animation: "esp-sweep 1.8s ease-in-out infinite",
             }}
-          />
-
-          {/* Drip bar */}
-          <div
-            ref={dripRef}
-            style={{ display: "flex", alignItems: "flex-end", gap: "8px" }}
           />
         </div>
       </div>
-    </>
+
+      {/* Keyframes */}
+      <style>{`
+        @keyframes esp-flicker {
+          0%, 100% {
+            text-shadow:
+              0 0 4px  #fff4e0,
+              0 0 12px #ff9900,
+              0 0 28px #ff4400,
+              0 0 56px #cc1100,
+              0 0 90px #880000;
+          }
+          20% {
+            text-shadow:
+              0 0 2px  #ffe8c0,
+              0 0 10px #ff8800,
+              0 0 22px #ff3300,
+              0 0 48px #aa0000,
+              0 0 72px #660000;
+          }
+          40% {
+            text-shadow:
+              0 0 6px  #ffffff,
+              0 0 16px #ffaa00,
+              0 0 36px #ff5500,
+              0 0 70px #dd1100,
+              0 0 100px #990000;
+          }
+          70% {
+            text-shadow:
+              0 0 3px  #fff0d0,
+              0 0 10px #ff9000,
+              0 0 25px #ff3800,
+              0 0 52px #bb0800,
+              0 0 80px #770000;
+          }
+        }
+
+        @keyframes esp-sweep {
+          0%   { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+
+        @keyframes esp-fade-in {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
   );
 };
 

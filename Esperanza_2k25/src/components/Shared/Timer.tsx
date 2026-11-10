@@ -1,7 +1,7 @@
 "use client";
 import { getRemainingTime } from "@/utils/functions/countdown";
 import { Sedgwick_Ave_Display } from "next/font/google";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AnimatedLine from "../Home/AnimatedLine";
 
 const sedgwick = Sedgwick_Ave_Display({
@@ -16,9 +16,12 @@ const Timer = () => {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRemainingTime(getRemainingTime("2026-06-16T00:00:00"));
-    }, 1000);
+    const updateCountdown = () => {
+      setRemainingTime(getRemainingTime("2026-11-30T00:00:00"));
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
 
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry) => {

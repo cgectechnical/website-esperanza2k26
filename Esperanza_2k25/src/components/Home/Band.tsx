@@ -59,8 +59,13 @@ const Band = () => {
     loadBands();
   }, []);
 
+  if (loading || bands.length === 0) {
+    return null;
+  }
+
   return (
-    <section ref={sectionRef} className="py-16 px-8 max-w-6xl mx-auto">
+    <div className="mt-16 md:mt-20">
+      <section ref={sectionRef} className="py-16 px-8 max-w-6xl mx-auto">
       {/* Band header - matching Technical/Cultural style */}
       <div className="relative inline-block mb-4 mx-auto w-full">
         <h1
@@ -95,18 +100,7 @@ const Band = () => {
       </div>
 
       <div className="space-y-16">
-        {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-pulse text-gray-500 text-xl">
-              Loading bands...
-            </div>
-          </div>
-        ) : bands.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            No bands yet. Check back soon!
-          </div>
-        ) : (
-          bands.map((bandItem) => (
+        {bands.map((bandItem) => (
             <div
               key={bandItem._id}
               className="relative flex flex-col items-center"
@@ -173,9 +167,10 @@ const Band = () => {
               </div>
             </div>
           ))
-        )}
+        }
       </div>
     </section>
+    </div>
   );
 };
 

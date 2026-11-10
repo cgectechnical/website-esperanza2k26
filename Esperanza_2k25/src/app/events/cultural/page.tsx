@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { fetchAllEvents } from "@/actions/fetch.action";
 import { CardDiv } from "@/components/Shared/Card";
 import { sedgwick } from "@/utils/fonts";
+import LoaderComponent from "@/components/Shared/Loader";
 
 const Cultural = () => {
   const [events, setEvents] = useState<any[]>([]);
@@ -46,11 +47,7 @@ const Cultural = () => {
   }, [searchQuery, events]);
 
   if (loading) {
-    return (
-      <div className="mt-[80px] min-h-[90vh] relative flex items-center justify-center">
-        <div className="animate-pulse text-white">Loading...</div>
-      </div>
-    );
+    return <LoaderComponent />;
   }
 
   return (
